@@ -10,6 +10,8 @@ pipeline {
     IMAGE_NAME         = "devops_ws"
     SONAR_PROJECT_KEY  = "threepoints_devops_webserver"
     SONAR_PROJECT_NAME = "ThreePoints Webserver"
+    SONAR_HOST_URL     = "http://host.docker.internal:9000"
+    SONAR_AUTH_TOKEN   = credentials('sonar-token')
   }
 
   stages {
@@ -21,19 +23,17 @@ pipeline {
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('SonarDocker') {
-          // Ejecutar el scanner desde un contenedor Docker oficial
-          script {
-            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-              sh "sonar-scanner \
+        script {
+          docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+            sh """
+              sonar-scanner \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_AUTH_TOKEN} \
                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                 -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
-                -Dsonar.sources=src"
-            }
+                -Dsonar.sources=src
+            """
           }
-        }
-        timeout(time: 5, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: false
         }
       }
     }
