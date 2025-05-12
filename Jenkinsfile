@@ -24,16 +24,16 @@ pipeline {
     stage('SonarQube Analysis') {
       steps {
         script {
-          docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-            sh """
-              sonar-scanner \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.login=${SONAR_AUTH_TOKEN} \
-                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
-                -Dsonar.sources=src
-            """
-          }
+          sh """
+            docker run --rm \
+              -v ${env.WORKSPACE}:/usr/src \
+              -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+              -e SONAR_AUTH_TOKEN=${SONAR_AUTH_TOKEN} \
+              sonarsource/sonar-scanner-cli:latest \
+              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+              -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
+              -Dsonar.sources=src
+          """
         }
       }
     }
