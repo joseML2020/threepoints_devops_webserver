@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Nombre configurado en "Global Tool Configuration" para SonarQube Scanner
-        sonarRunner 'SonarScanner'
+        sonarScanner 'SonarScanner'
     }
 
     options {
